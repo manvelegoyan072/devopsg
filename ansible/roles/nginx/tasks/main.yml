@@ -1,0 +1,17 @@
+- name: Install Nginx
+  package:
+    name: nginx
+    state: latest
+    use: apt
+
+- name: Replace NGINX config
+  template:
+    src=templates/nginx.conf
+    dest=/etc/nginx/nginx.conf
+
+- name: Add NGINX server paths config
+  template:
+    src=templates/default
+    dest=/etc/nginx/sites-enabled/default
+  notify:
+    - NGINX reload

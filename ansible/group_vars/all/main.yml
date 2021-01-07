@@ -1,0 +1,14 @@
+# Этот файл содержит общие для всех ролей переменные
+nginx_sites_available_directory: /etc/nginx/sites-available
+delete_app: false
+
+# middle settings
+project_key: viva
+app_id: "{{ project_key }}"
+
+
+ansible_user: devops
+ansible_become: yes
+ansible_become_method: sudo
+ansible_ssh_common_args: '-o StrictHostKeyChecking=false'
+ansible_python_interpreter: /usr/bin/python3

@@ -1,0 +1,9 @@
+- name: Creates postgres directory
+  file:
+    path: /srv/docker/postgres/initdb
+    state: directory
+
+- name: Creates postgres init sql
+  template:
+    src=templates/init.sql
+    dest=/srv/docker/postgres/initdb/init.sql

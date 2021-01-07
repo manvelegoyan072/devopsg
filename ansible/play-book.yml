@@ -1,0 +1,46 @@
+- hosts: master
+  roles:
+    - { role: 'nginx' }
+    - { role: 'postgres' }
+    - { role: 'docker' }
+  tasks:
+    #[DOCKER] Create dockernetwork
+    - name: '[DOCKER] Create docker network'
+      become: yes
+      docker_network:
+        name: my_network
+    - name: 'Login to docker registry'
+      docker_login:
+        registry: "{{ CI_REGISTRY }}"
+        username: "{{ CI_REGISTRY_USER }}"
+        password: "{{ CI_BUILD_TOKEN }}"
+        reauthorize: yes
+    - name: '[BOT-API] Running container'
+      become: yes
+      docker_container:
+        name: 'bot-api'
+        recreate: true
+        restart_policy: unless-stopped
+        image: '{{CI_REGISTRY_PROJECT}}/bot-api:latest'
+        published_ports:
+          - '8080:8080'
+          - '443:443'
+        networks:
+          - name: "my_network"
+    - name: 'Running postgres container'
+      become: yes
+      docker_container:
+        image: 'postgres:11'
+        name: 'bot-postgres'
+        restart_policy: unless-stopped
+        env:
+          POSTGRES_USER: "viva"
+          POSTGRES_PASSWORD: "{{PG_PASSWORD}}"
+          POSTGRES_DB: "viva"
+        published_ports:
+          - '5432:5432'
+        networks:
+          - name: "my_network"
+        volumes:
+          - '/srv/docker/postgres/initdb:/docker-entrypoint-initdb.d'
+          - '/srv/docker/postgres/data:/var/lib/postgresql/data'
